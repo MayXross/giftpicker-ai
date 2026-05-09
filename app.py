@@ -288,7 +288,7 @@ if st.session_state.gifts:
     st.markdown("### Your Gift Ideas")
     st.divider()
 
-    affiliate = "giftpicker-20"
+    affiliate = "giftpickera00-20"
     saved_language = st.session_state.get("language", "English")
 
     for i, gift in enumerate(st.session_state.gifts):
