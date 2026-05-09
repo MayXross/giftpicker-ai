@@ -362,7 +362,7 @@ st.markdown("""
         <b>Affiliate Disclosure:</b> GiftPicker AI participates in the Amazon Associates Program.
         Links marked with 🛒 are affiliate links. If you make a purchase we may earn a small
         commission at no extra cost to you.<br><br>
-        <b>Contact:</b> giftpickerai@gmail.com
+        <b>Contact:</b> mayxross1@gmail.com
     </p>
 </div>
 """, unsafe_allow_html=True)
