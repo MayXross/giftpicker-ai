@@ -231,6 +231,26 @@ with col2:
     budget = st.selectbox("Budget", ["Under $20", "Under $50", "Under $100", "Under $200", "Under $500", "$500+"])
     language = st.selectbox("🌍 Gift language", LANGUAGES)
 
+category = st.selectbox("🎯 Gift category (optional)", [
+    "Any category",
+    "🎮 Electronics & Gaming",
+    "👗 Fashion & Accessories",
+    "🏠 Home & Decor",
+    "📚 Books & Stationery",
+    "🌿 Wellness & Beauty",
+    "🍫 Food & Drinks",
+    "🎨 Art & Crafts",
+    "🏋️ Sports & Outdoors",
+    "🧸 Toys & Games",
+    "✈️ Travel & Experiences",
+    "🎵 Music & Entertainment",
+    "🐾 Pets",
+])
+
+dedication = st.text_area("💌 Personal dedication (optional)", 
+                          placeholder="e.g. For my mom who always supports me...",
+                          max_chars=200, height=80)
+
 gift_count = st.slider("🎁 How many gift ideas?", min_value=3, max_value=10, value=5, step=1)
 
 st.divider()
@@ -242,14 +262,16 @@ if st.button("🎁 Generate Gift Ideas"):
     if recipient and interests:
         st.session_state.request_count += 1
         st.session_state.language = language
+        st.session_state.dedication = dedication
         with st.spinner("Finding perfect gifts..."):
             try:
+                category_text = f" in the category: {category}" if category != "Any category" else ""
                 message = client.messages.create(
                     model="claude-sonnet-4-6",
                     max_tokens=2000,
                     system=f"""You are an expert gift advisor.
                     Always respond in {language}.
-                    Suggest exactly {gift_count} unique personalized gifts.
+                    Suggest exactly {gift_count} unique personalized gifts{category_text}.
                     Respond ONLY in this exact JSON format, nothing else:
                     [
                       {{
@@ -264,7 +286,7 @@ if st.button("🎁 Generate Gift Ideas"):
                     Be SPECIFIC. ONLY valid JSON, no extra text.""",
                     messages=[{
                         "role": "user",
-                        "content": f"Find {gift_count} gifts for: {recipient}, interests: {interests}, budget: {budget}"
+                        "content": f"Find {gift_count} gifts for: {recipient}, interests: {interests}, budget: {budget}{category_text}"
                     }]
                 )
                 raw = message.content[0].text.strip()
@@ -288,12 +310,27 @@ if st.session_state.gifts:
     st.markdown("### Your Gift Ideas")
     st.divider()
 
+    # Zobraz venovanie ak existuje
+    saved_dedication = st.session_state.get("dedication", "")
+    if saved_dedication:
+        st.markdown(f"""
+        <div style="background: linear-gradient(135deg, #1a1a2e, #0f3460); border-radius: 16px; 
+                    padding: 1.5rem; margin-bottom: 1.5rem; text-align: center;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">💌</div>
+            <div style="color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 0.5rem;">Personal dedication</div>
+            <div style="color: #ffd166; font-size: 1rem; font-style: italic;">"{saved_dedication}"</div>
+        </div>
+        """, unsafe_allow_html=True)
+
     affiliate = "giftpickera00-20"
+    ebay_campaign = "5339153077"
+    ebay_publisher = "7298517"
     saved_language = st.session_state.get("language", "English")
 
     for i, gift in enumerate(st.session_state.gifts):
         search = gift['amazon_search'].replace(' ', '+')
         amazon_url = f"https://{amazon_store}/s?k={search}&tag={affiliate}&language=en_US"
+        ebay_url = f"https://www.ebay.com/sch/i.html?_nkw={search}&mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid={ebay_campaign}&customid=&toolid=10001&mkevt=1&pub={ebay_publisher}"
 
         with st.container():
             col1, col2 = st.columns([1, 2])
@@ -317,6 +354,7 @@ if st.session_state.gifts:
                 st.markdown(f'<div class="gift-reason">💡 {gift["reason"]}</div>', unsafe_allow_html=True)
                 st.markdown(f'<div class="gift-price">💰 {gift["price"]}</div>', unsafe_allow_html=True)
                 st.link_button("🛒 View on Amazon", amazon_url)
+                st.link_button("🛍️ View on eBay", ebay_url)
 
                 if st.button("🔄 Show alternatives", key=f"alt_{i}"):
                     st.session_state[f"show_alt_{i}"] = True
@@ -359,9 +397,9 @@ if st.session_state.gifts:
 st.markdown("""
 <div style="background:#f8f9ff; border-radius:12px; padding:1rem; margin-top:1rem;">
     <p style="font-size:12px; color:#999; text-align:center; margin:0;">
-        <b>Affiliate Disclosure:</b> GiftPicker AI participates in the Amazon Associates Program.
-        Links marked with 🛒 are affiliate links. If you make a purchase we may earn a small
-        commission at no extra cost to you.<br><br>
+        <b>Affiliate Disclosure:</b> GiftPicker AI participates in the Amazon Associates Program 
+        and eBay Partner Network. Links marked with 🛒 and 🛍️ are affiliate links. 
+        If you make a purchase we may earn a small commission at no extra cost to you.<br><br>
         <b>Contact:</b> mayxross1@gmail.com
     </p>
 </div>
