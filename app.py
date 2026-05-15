@@ -338,10 +338,10 @@ if st.session_state.gifts:
     if saved_dedication:
         st.markdown(f"""
         <div style="background: linear-gradient(135deg, #1a1a2e, #0f3460); border-radius: 16px; 
-                    padding: 1.5rem; margin-bottom: 1.5rem; text-align: center;">
-            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">💌</div>
-            <div style="color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 0.5rem;">Personal dedication</div>
-            <div style="color: #ffd166; font-size: 1rem; font-style: italic;">"{saved_dedication}"</div>
+                    padding: 2rem; margin-bottom: 1.5rem; text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💌</div>
+            <div style="color: rgba(255,255,255,0.7); font-size: 1rem; margin-bottom: 0.75rem; letter-spacing: 1px;">Personal dedication</div>
+            <div style="color: #ffd166; font-size: 1.3rem; font-style: italic; line-height: 1.6;">"{saved_dedication}"</div>
         </div>
         """, unsafe_allow_html=True)
 
