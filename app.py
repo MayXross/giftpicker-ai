@@ -247,9 +247,21 @@ category = st.selectbox("🎯 Gift category (optional)", [
     "🐾 Pets",
 ])
 
-dedication = st.text_area("💌 Personal dedication (optional)", 
-                          placeholder="e.g. For my mom who always supports me...",
-                          max_chars=200, height=80)
+occasion = st.selectbox("🎉 Occasion (optional)", [
+    "Just a gift",
+    "🎂 Birthday",
+    "🎄 Christmas",
+    "💝 Valentine's Day",
+    "👩 Mother's Day",
+    "👨 Father's Day",
+    "🎓 Graduation",
+    "💍 Wedding / Anniversary",
+    "🏠 Housewarming",
+    "👶 Baby Shower",
+    "🎊 Retirement",
+    "🤒 Get Well Soon",
+    "🙏 Thank You",
+])
 
 gift_count = st.slider("🎁 How many gift ideas?", min_value=3, max_value=10, value=5, step=1)
 
@@ -262,41 +274,48 @@ if st.button("🎁 Generate Gift Ideas"):
     if recipient and interests:
         st.session_state.request_count += 1
         st.session_state.language = language
-        st.session_state.dedication = dedication
+        st.session_state.occasion = occasion
         with st.spinner("Finding perfect gifts..."):
             try:
                 category_text = f" in the category: {category}" if category != "Any category" else ""
+                occasion_text = f" for the occasion: {occasion}" if occasion != "Just a gift" else ""
                 message = client.messages.create(
                     model="claude-sonnet-4-6",
-                    max_tokens=2000,
+                    max_tokens=2500,
                     system=f"""You are an expert gift advisor.
                     Always respond in {language}.
-                    Suggest exactly {gift_count} unique personalized gifts{category_text}.
+                    Suggest exactly {gift_count} unique personalized gifts{category_text}{occasion_text}.
+                    Also generate a short heartfelt dedication message for this occasion.
                     Respond ONLY in this exact JSON format, nothing else:
-                    [
-                      {{
-                        "name": "Product Name",
-                        "reason": "Why perfect in one sentence",
-                        "price": "$20-30",
-                        "amazon_search": "exact search term",
-                        "emoji": "one relevant emoji",
-                        "category": "product category"
-                      }}
-                    ]
+                    {{
+                      "dedication": "A short heartfelt 1-2 sentence dedication message for {occasion}",
+                      "gifts": [
+                        {{
+                          "name": "Product Name",
+                          "reason": "Why perfect in one sentence",
+                          "price": "$20-30",
+                          "amazon_search": "exact search term",
+                          "emoji": "one relevant emoji",
+                          "category": "product category"
+                        }}
+                      ]
+                    }}
                     Be SPECIFIC. ONLY valid JSON, no extra text.""",
                     messages=[{
                         "role": "user",
-                        "content": f"Find {gift_count} gifts for: {recipient}, interests: {interests}, budget: {budget}{category_text}"
+                        "content": f"Find {gift_count} gifts for: {recipient}, interests: {interests}, budget: {budget}{category_text}{occasion_text}"
                     }]
                 )
                 raw = message.content[0].text.strip()
-                # Strip markdown code fences if present
                 if raw.startswith("```"):
                     raw = raw.split("```")[1]
                     if raw.startswith("json"):
                         raw = raw[4:]
-                gifts = json.loads(raw)
+                result = json.loads(raw)
+                gifts = result.get("gifts", result) if isinstance(result, dict) else result
+                dedication = result.get("dedication", "") if isinstance(result, dict) else ""
                 st.session_state.gifts = gifts
+                st.session_state.dedication = dedication
                 st.session_state.recipient = recipient
                 st.session_state.budget = budget
             except Exception as e:
