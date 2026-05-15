@@ -261,7 +261,11 @@ occasion = st.selectbox("🎉 Occasion (optional)", [
     "🎊 Retirement",
     "🤒 Get Well Soon",
     "🙏 Thank You",
+    "✏️ Other...",
 ])
+
+if occasion == "✏️ Other...":
+    occasion = st.text_input("Describe the occasion", placeholder="e.g. Promotion, New Job, Sports victory...")
 
 gift_count = st.slider("🎁 How many gift ideas?", min_value=3, max_value=10, value=5, step=1)
 
